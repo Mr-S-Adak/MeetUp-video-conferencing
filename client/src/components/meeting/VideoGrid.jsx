@@ -20,7 +20,7 @@ const VideoGrid = ({
     return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 max-w-7xl";
   };
   return (
-    <div className="flex-1 w-full items-center justify-center p-4 overflow-y-auto">
+    <div className="flex-1 w-full h-full flex items-center justify-center p-4 overflow-y-auto">
       <div
         className={`w-full grid gap-4 ${getGridClass()} aspect-video max-h-[calc(100vh-140px)] transition-all duration-300`}
       >
