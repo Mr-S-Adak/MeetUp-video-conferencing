@@ -6,6 +6,8 @@ import useWebRTC from "../hooks/useWebRTC";
 import ChatPanel from "../components/meeting/ChatPanel";
 import { useChat } from "../hooks/useChat";
 import ParticipantList from "../components/meeting/ParticipantList";
+import ControlBar from "../components/meeting/Controlbar";
+import toast from "react-hot-toast";
 
 const MeetingRoom = () => {
   const { meetingId } = useParams();
@@ -37,9 +39,16 @@ const MeetingRoom = () => {
 
   const isHost = true;
 
-  const handleleave = () => {};
+  const handleleave = () => {
+    toast("You left the meeting");
+    navigate("/dashboard");
+  };
 
-  const handleEndMeeting = () => {};
+  const handleEndMeeting = () => {
+    endMeeting();
+    toast("Meeting ended for all participants");
+    navigate("/dashboard");
+  };
 
   return (
     <div className="h-screen w-screen bg-slate-100 text-slate-900 flex flex-col overflow-hidden relative font-sans">
@@ -82,9 +91,24 @@ const MeetingRoom = () => {
           remoteUsers={remoteUsers}
           meetinghostId={dummyUser.id}
         />
-
-        {/* Bottom Control Bar */}
       </div>
+      {/* Bottom Control Bar */}
+      <ControlBar
+        roomId={meetingId || dummyMeetingDetails.meetingId}
+        audioEnabled={audioEnabled}
+        videoEnabled={videoEnabled}
+        onToggleAudio={toggleAudio}
+        onToggleVideo={toggleVideo}
+        onToggleChat={toggleChat}
+        onToggleParticipants={() => setIsParticipantsOpen((prev) => !prev)}
+        isChatOpen={isChatOpen}
+        isParticipantsOpen={isParticipantsOpen}
+        unreadCount={unredCount}
+        participantCount={1 + remoteUsers.length}
+        isHost={isHost}
+        onLeave={handleleave}
+        onEndMeeting={handleEndMeeting}
+      />
     </div>
   );
 };
