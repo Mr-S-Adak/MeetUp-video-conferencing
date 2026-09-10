@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { dummySessions } from "../assets/asset";
 import EmptySessions from "../components/sessions/EmptySessions";
 import SessionCard from "../components/sessions/SessionCard";
+import SessionDetailModel from "../components/sessions/SessionDetailModel";
 
 const Sessions = () => {
   const [sessions] = useState(dummySessions);
@@ -53,7 +54,10 @@ const Sessions = () => {
         </div>
       )}
       {/* Session Detail Model */}
-      <p>Session Detail Model</p>
+      <SessionDetailModel
+        session={selectedSession}
+        onClose={() => setSelectedSession(null)}
+      />
     </main>
   );
 };
