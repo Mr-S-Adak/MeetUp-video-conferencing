@@ -57,8 +57,11 @@ export const createMeeting = async (req, res) => {
     const hostName = users[0]?.name || "Host";
 
     // Insert host into participants
+    // await sql`INSERT INTO meeting_participants (meeting_id, user_id, name)
+    // VALUES (${meetingId}, ${userId}, ${hostName})`;
+
     await sql`INSERT INTO meeting_participants (meeting_id, user_id, name)
-    VALUES (${meetingId}, ${userId}, ${hostName})`;
+    VALUES (${meeting.id}, ${userId}, ${hostName})`;
 
     res.status(201).json({
       meeting: {
@@ -137,7 +140,7 @@ export const getUserSessions = async (req, res) => {
             WHERE mp.meeting_id = ${m.id}`;
 
         const messages = await sql`
-            SELECT id, sender,id, sender_name, text, timestamp
+            SELECT id, sender_id, sender_name, text, timestamp
             FROM meeting_messages
             WHERE meeting_id = ${m.id}
             ORDER BY timestamp ASC`;
