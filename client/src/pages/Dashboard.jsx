@@ -80,7 +80,7 @@ const Dashboard = () => {
     }
     try {
       const token = await getToken();
-      await api.get("/api/meetings/${cleanId}", {
+      await api.get(`/api/meetings/${cleanId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       navigate(`/meeting/${cleanId}`);

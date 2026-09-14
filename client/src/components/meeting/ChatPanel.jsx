@@ -88,7 +88,7 @@ const ChatPanel = ({
         />
 
         <button
-          tpye="submit"
+          type="submit"
           disabled={!text.trim()}
           className="p-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white disabled:opacity-40 transition-all cursor-pointer shadow-xs"
         >

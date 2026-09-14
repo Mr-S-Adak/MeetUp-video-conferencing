@@ -1,3 +1,4 @@
+//
 import { useCallback, useEffect, useRef, useState } from "react";
 import { socket } from "../config/socket.js";
 
@@ -7,48 +8,66 @@ export const useChat = (roomId, user) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const isChatOpenRef = useRef(isChatOpen);
+
   useEffect(() => {
     isChatOpenRef.current = isChatOpen;
   }, [isChatOpen]);
 
+  // Receive messages
   useEffect(() => {
     if (!roomId) return;
+
     const handleReceiveMessage = (message) => {
       setMessages((prev) => [...prev, message]);
+
       if (!isChatOpenRef.current) {
         setUnreadCount((prev) => prev + 1);
       }
     };
-    socket.on("recive-message", handleReceiveMessage);
+
+    socket.on("receive-message", handleReceiveMessage);
+
     return () => {
-      socket.off("recive-message", handleReceiveMessage);
+      socket.off("receive-message", handleReceiveMessage);
     };
   }, [roomId]);
 
+  // Send message
   const sendMessage = useCallback(
     (text) => {
-      if (!text.trim() || !user) return;
+      if (!text.trim() || !user || !roomId) return;
 
       const message = {
         id: Date.now().toString(),
         text: text.trim(),
         senderName: user.name || user.fullName || "You",
         senderId: user.id,
-        time: new Date().toLocalTimeString([], {
+        time: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         }),
       };
-      socket.emit("send-message", { roomId, message });
+
+      console.log("Sending message:", {
+        roomId,
+        message,
+        user,
+      });
+
+      socket.emit("send-message", roomId, message);
     },
-    [roomId, user?.id, user?.name],
+    [roomId, user],
   );
   const toggleChat = useCallback(() => {
     setIsChatOpen((prev) => {
-      if (!prev) setUnreadCount(0);
+      if (!prev) {
+        setUnreadCount(0);
+      }
+
       return !prev;
     });
   }, []);
+
   return {
     messages,
     sendMessage,
