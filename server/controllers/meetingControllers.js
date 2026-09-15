@@ -17,8 +17,20 @@ export const createMeeting = async (req, res) => {
 
     //Fetch user details & plan
 
-    const users = await sql`SELECT name,plan FROM users WHERE id = ${userId}`;
-    const userPlan = users[0]?.plan || "free";
+    const users = await sql`
+  SELECT id, name, email, image, plan
+  FROM users
+  WHERE id = ${userId}
+`;
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        error: "User not found in database. Please sync your Clerk account.",
+        userId,
+      });
+    }
+
+    const userPlan = users[0].plan || "free";
 
     // check meetings limit per calender momth
     if (userPlan === "free") {
@@ -51,7 +63,7 @@ export const createMeeting = async (req, res) => {
 
     const [meeting] =
       await sql`INSERT INTO meetings(meeting_id, title, host_id, status)
-      VALUES (${meetingId}, ${title || "Instant Meeting"}, ${userId}, 'active')
+      VALUES (${meeting.id}, ${title || "Instant Meeting"}, ${userId}, 'active')
       RETURNING id, meeting_id, title, host_id, status, created_at`;
 
     const hostName = users[0]?.name || "Host";
@@ -157,9 +169,20 @@ export const getUserSessions = async (req, res) => {
             name: m.host_name,
             email: m.host_email,
           },
+          // participants: participants.map((p) => ({
+          //   user: participants.user_id
+          //     ? { id: p.user_id, email: p.email }
+          //     : null,
+          //   name: p.name,
+          //   joinedAt: p.joined_at,
+          //   leftAt: p.left_at,
+          // })),
           participants: participants.map((p) => ({
-            user: participants.user_id
-              ? { id: p.user_id, email: p.email }
+            user: p.user_id
+              ? {
+                  id: p.user_id,
+                  email: p.email,
+                }
               : null,
             name: p.name,
             joinedAt: p.joined_at,
