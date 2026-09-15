@@ -36,7 +36,7 @@ export const handleClerkWebhook = async (req, res) => {
 
         await sql`
         INSERT INTO users (id,name,email,image)
-        VALUES (${userId},${name},${primaryEmail},${image},)
+        VALUES (${userId},${name},${primaryEmail},${image})
         ON CONFLICT (id) DO UPDATE SET
         email = EXCLUDED.email,
         id = EXCLUDED.id,
@@ -49,7 +49,7 @@ export const handleClerkWebhook = async (req, res) => {
       case "user.deleted": {
         const userId = data.id;
         if (userId) {
-          await sql`DELETE FROM user WHERE id = ${userId}`;
+          await sql`DELETE FROM users WHERE id = ${userId}`;
         }
         break;
       }
