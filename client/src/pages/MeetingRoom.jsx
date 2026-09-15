@@ -6,7 +6,7 @@ import { useWebRTC } from "../hooks/useWebRTC";
 import ChatPanel from "../components/meeting/ChatPanel";
 import { useChat } from "../hooks/useChat";
 import ParticipantList from "../components/meeting/ParticipantList";
-import ControlBar from "../components/meeting/Controlbar";
+import ControlBar from "../components/meeting/ControlBar.jsx";
 import toast from "react-hot-toast";
 import { useAuth, useUser } from "@clerk/react";
 import api from "../config/api.js";
