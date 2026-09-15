@@ -23,7 +23,7 @@ export const createMeeting = async (req, res) => {
     // check meetings limit per calender momth
     if (userPlan === "free") {
       const monthlyCountResult =
-        await sql`SELECT COUNT(*) a count FROM meetings WHERE host_id = ${userId} AND created_at >= date_trunc('month', NOW())`;
+        await sql`SELECT COUNT(*) AS count FROM meetings WHERE host_id = ${userId} AND created_at >= date_trunc('month', NOW())`;
 
       const monthlyCount = parseInt(monthlyCountResult[0]?.count || "0");
 
