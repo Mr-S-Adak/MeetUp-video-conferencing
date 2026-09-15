@@ -37,10 +37,13 @@ export const handleClerkWebhook = async (req, res) => {
           data.email_addresses?.[0]?.email_address ||
           "";
 
-        const name =
-          `${data.first_name || ""} ${data.last_name || ""}`.trim() || "User";
+        // const name =
+        //   `${data.first_name || ""} ${data.last_name || ""}`.trim() || "User";
 
-        const image = data.image_url || "";
+        // const image = data.image_url || "";
+
+        const name =
+          [data.first_name, data.last_name].filter(Boolean).join(" ") || "User";
 
         await sql`
     INSERT INTO users (
@@ -98,8 +101,11 @@ export const handleClerkWebhook = async (req, res) => {
           data.email_addresses?.[0]?.email_address ||
           "";
 
+        // const name =
+        //   `${data.first_name || ""} ${data.last_name || ""}`.trim() || "User";
+
         const name =
-          `${data.first_name || ""} ${data.last_name || ""}`.trim() || "User";
+          [data.first_name, data.last_name].filter(Boolean).join(" ") || "User";
 
         const image = data.image_url || "";
 
