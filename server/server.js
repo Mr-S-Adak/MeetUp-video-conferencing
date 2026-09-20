@@ -17,8 +17,17 @@ const server = http.createServer(app);
 // Connect to neon & Initialize tables
 await initDB();
 
-const allowedOrigins = process.env.ORIGINS.split(",");
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+// const allowedOrigins = process.env.ORIGINS.split(",");
+const allowedOrigins = process.env.ORIGINS.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+// app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 app.use(cookieParser());
 
 app.post(

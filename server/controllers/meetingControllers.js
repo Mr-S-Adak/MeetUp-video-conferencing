@@ -61,11 +61,16 @@ export const createMeeting = async (req, res) => {
         await sql`SELECT id FROM meetings WHERE meeting_id = ${meetingId}`;
     }
 
-    const [meeting] =
-      await sql`INSERT INTO meetings(meeting_id, title, host_id, status)
-      VALUES (${meeting.id}, ${title || "Instant Meeting"}, ${userId}, 'active')
-      RETURNING id, meeting_id, title, host_id, status, created_at`;
+    // const [meeting] =
+    //   await sql`INSERT INTO meetings(meeting_id, title, host_id, status)
+    //   VALUES (${meeting.id}, ${title || "Instant Meeting"}, ${userId}, 'active')
+    //   RETURNING id, meeting_id, title, host_id, status, created_at`;
 
+    const [meeting] = await sql`
+  INSERT INTO meetings (meeting_id, title, host_id, status)
+  VALUES (${meetingId}, ${title || "Instant Meeting"}, ${userId}, 'active')
+  RETURNING id, meeting_id, title, host_id, status, created_at
+  `;
     const hostName = users[0]?.name || "Host";
 
     // Insert host into participants
@@ -105,8 +110,14 @@ export const getMeeting = async (req, res) => {
 
     const meeting = meetings[0];
 
+    // if (meeting.status === "ended") {
+    //   return res.status(400).json({ error: error.message });
+    // }
+
     if (meeting.status === "ended") {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({
+        error: "This meeting has already ended",
+      });
     }
 
     res.json({

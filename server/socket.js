@@ -181,7 +181,10 @@ export function setupSocketIo(io) {
             SET status = 'ended', ended_at = NOW()
             WHERE meeting_id = ${roomId}`;
 
-        io.on(roomId).emit("meeting-ended", {
+        // io.on(roomId).emit("meeting-ended", {
+        //   message: "The meeting has been ended by the host.",
+        // });
+        io.to(roomId).emit("meeting-ended", {
           message: "The meeting has been ended by the host.",
         });
         rooms.delete(roomId);
@@ -191,7 +194,7 @@ export function setupSocketIo(io) {
     });
 
     // Handle Disconnect (Reloading window, network drop, or closing tab)
-    socket.on("desconnect", () => {
+    socket.on("disconnect", () => {
       if (currentRoomId && rooms.has(currentRoomId)) {
         const roomParticipants = rooms.get(currentRoomId);
         roomParticipants.delete(socket.id);
