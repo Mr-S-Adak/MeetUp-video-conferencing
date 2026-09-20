@@ -42,28 +42,51 @@ export const handleClerkWebhook = async (req, res) => {
 
         const image = data.image_url || "";
 
+        //       await sql`
+        //   INSERT INTO users (
+        //     id,
+        //     name,
+        //     email,
+        //     image,
+        //     plan
+        //   )
+        //   VALUES (
+        //     ${userId},
+        //     ${name},
+        //     ${primaryEmail},
+        //     ${image},
+        //     'free'
+        //   )
+        //   ON CONFLICT (id)
+        //   DO UPDATE SET
+        //     name = EXCLUDED.name,
+        //     email = EXCLUDED.email,
+        //     image = EXCLUDED.image,
+        //     updated_at = NOW()
+        // `;
+
         await sql`
-    INSERT INTO users (
-      id,
-      name,
-      email,
-      image,
-      plan
-    )
-    VALUES (
-      ${userId},
-      ${name},
-      ${primaryEmail},
-      ${image},
-      'free'
-    )
-    ON CONFLICT (id)
-    DO UPDATE SET
-      name = EXCLUDED.name,
-      email = EXCLUDED.email,
-      image = EXCLUDED.image,
-      updated_at = NOW()
-  `;
+      INSERT INTO users (
+        id,
+        name,
+        email,
+        image,
+        plan
+      )
+      VALUES (
+        ${userId},
+        ${name},
+        ${primaryEmail},
+        ${image},
+        'free'
+      )
+      ON CONFLICT (id)
+      DO UPDATE SET
+        name = EXCLUDED.name,
+        email = EXCLUDED.email,
+        image = EXCLUDED.image,
+        updated_at = NOW()
+    `;
 
         console.log(`Clerk user synced: ${userId}`);
 
