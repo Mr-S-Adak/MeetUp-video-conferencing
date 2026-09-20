@@ -1,5 +1,6 @@
 import { verifyWebhook } from "@clerk/express/webhooks";
 import { sql } from "../config/db.js";
+
 export const handleClerkWebhook = async (req, res) => {
   try {
     const evt = await verifyWebhook(req);
@@ -7,26 +8,12 @@ export const handleClerkWebhook = async (req, res) => {
     const eventType = evt.type;
     const data = evt.data;
 
-    switch (eventType) {
-      // case "user.created": {
-      //   const userId = data.id;
-      //   const primaryEmail = data.email_addresses?.[0]?.email_address || "";
-      //   const name = `${data.first_name || "User"} ${data.last_name}`;
-      //   const image = data.image_url || "";
-      //   const plan = "free";
+    console.log("========== CLERK WEBHOOK ==========");
+    console.log("Event:", eventType);
+    console.log("User ID:", data?.id);
+    console.log("===================================");
 
-      //   await sql`
-      //   INSERT INTO users (id,name,email,image,plan)
-      //   VALUES (${userId},${name},${primaryEmail},${image},${plan})
-      //   ON CONFLICT (id) DO UPDATE SET
-      //   email = COALESCE(NULLIF(EXCLUDED.email, ''), users.email),
-      //   id = EXCLUDED.id,
-      //   name = EXCLUDED.name,
-      //   image = EXCLUDED.image,
-      //   plan = EXCLUDED.plan,
-      //   updated_at = NOW()`;
-      //   break;
-      // }
+    switch (eventType) {
       case "user.created": {
         const userId = data.id;
 
@@ -42,74 +29,39 @@ export const handleClerkWebhook = async (req, res) => {
 
         const image = data.image_url || "";
 
-        //       await sql`
-        //   INSERT INTO users (
-        //     id,
-        //     name,
-        //     email,
-        //     image,
-        //     plan
-        //   )
-        //   VALUES (
-        //     ${userId},
-        //     ${name},
-        //     ${primaryEmail},
-        //     ${image},
-        //     'free'
-        //   )
-        //   ON CONFLICT (id)
-        //   DO UPDATE SET
-        //     name = EXCLUDED.name,
-        //     email = EXCLUDED.email,
-        //     image = EXCLUDED.image,
-        //     updated_at = NOW()
-        // `;
+        console.log("Creating user in Neon:", {
+          userId,
+          name,
+          email: primaryEmail,
+        });
 
         await sql`
-      INSERT INTO users (
-        id,
-        name,
-        email,
-        image,
-        plan
-      )
-      VALUES (
-        ${userId},
-        ${name},
-        ${primaryEmail},
-        ${image},
-        'free'
-      )
-      ON CONFLICT (id)
-      DO UPDATE SET
-        name = EXCLUDED.name,
-        email = EXCLUDED.email,
-        image = EXCLUDED.image,
-        updated_at = NOW()
-    `;
+          INSERT INTO users (
+            id,
+            name,
+            email,
+            image,
+            plan
+          )
+          VALUES (
+            ${userId},
+            ${name},
+            ${primaryEmail},
+            ${image},
+            'free'
+          )
+          ON CONFLICT (id)
+          DO UPDATE SET
+            name = EXCLUDED.name,
+            email = EXCLUDED.email,
+            image = EXCLUDED.image,
+            updated_at = NOW()
+        `;
 
-        console.log(`Clerk user synced: ${userId}`);
+        console.log(`✅ Clerk user synced to Neon: ${userId}`);
 
         break;
       }
-
-      // case "user.updated": {
-      //   const userId = data.id;
-      //   const primaryEmail = data.email_addresses?.[0]?.email_address || "";
-      //   const name = `${data.first_name || "User"} ${data.last_name}`;
-      //   const image = data.image_url || "";
-
-      //   await sql`
-      //   INSERT INTO users (id,name,email,image)
-      //   VALUES (${userId},${name},${primaryEmail},${image})
-      //   ON CONFLICT (id) DO UPDATE SET
-      //   email = EXCLUDED.email,
-      //   id = EXCLUDED.id,
-      //   name = EXCLUDED.name,
-      //   image = EXCLUDED.image,
-      //   updated_at = NOW()`;
-      //   break;
-      // }
 
       case "user.updated": {
         const userId = data.id;
@@ -127,47 +79,62 @@ export const handleClerkWebhook = async (req, res) => {
         const image = data.image_url || "";
 
         await sql`
-    INSERT INTO users (
-      id,
-      name,
-      email,
-      image
-    )
-    VALUES (
-      ${userId},
-      ${name},
-      ${primaryEmail},
-      ${image}
-    )
-    ON CONFLICT (id)
-    DO UPDATE SET
-      name = EXCLUDED.name,
-      email = EXCLUDED.email,
-      image = EXCLUDED.image,
-      updated_at = NOW()
-  `;
+          INSERT INTO users (
+            id,
+            name,
+            email,
+            image,
+            plan
+          )
+          VALUES (
+            ${userId},
+            ${name},
+            ${primaryEmail},
+            ${image}
+          )
+          ON CONFLICT (id)
+          DO UPDATE SET
+            name = EXCLUDED.name,
+            email = EXCLUDED.email,
+            image = EXCLUDED.image,
+            updated_at = NOW()
+        `;
 
-        console.log(`Clerk user updated/synced: ${userId}`);
+        console.log(`✅ Clerk user updated in Neon: ${userId}`);
 
         break;
       }
 
       case "user.deleted": {
         const userId = data.id;
+
         if (userId) {
-          await sql`DELETE FROM users WHERE id = ${userId}`;
+          await sql`
+            DELETE FROM users
+            WHERE id = ${userId}
+          `;
         }
+
+        console.log(`✅ Clerk user deleted from Neon: ${userId}`);
+
         break;
       }
+
       default:
-        console.log(`Unhandled Clerk webhook event type: ${eventType}`);
-        break;
+        console.log(`Unhandled Clerk event: ${eventType}`);
     }
-    return res.status(200).json({ success: true, eventType });
+
+    return res.status(200).json({
+      success: true,
+      eventType,
+    });
   } catch (error) {
-    console.error("Error verifying Clerk webhook:", error.message || error);
+    console.error("❌ Clerk webhook failed:", error);
+
     return res.status(400).json({
-      error: "Webhook verification failed:" + (error.message || error),
+      success: false,
+      error: "Webhook verification/processing failed",
+      message: error.message,
     });
   }
 };
